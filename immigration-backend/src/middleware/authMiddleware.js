@@ -56,37 +56,3 @@ exports.authenticate = async (req, res, next) => {
     });
   }
 };
-
-exports.requireIdentityVerification = async (req, res, next) => {
-  try {
-    if (!req.userId) {
-      return res.status(401).json({
-        success: false,
-        message: "Authentication required.",
-      });
-    }
-
-    const user = await User.findById(req.userId).select("identityVerified");
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: "Applicant record not found.",
-      });
-    }
-    if (!user.identityVerified) {
-      return res.status(403).json({
-        success: false,
-        code: "IDENTITY_VERIFICATION_REQUIRED",
-        message: "Please verify your identity first.",
-      });
-    }
-    next();
-  } catch (error) {
-    console.error("Identity access check failed:", error);
-
-    return res.status(500).json({
-      success: false,
-      message: "Unable to authorize this request.",
-    });
-  }
-};

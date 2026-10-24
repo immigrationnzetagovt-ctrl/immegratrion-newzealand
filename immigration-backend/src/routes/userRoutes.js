@@ -7,9 +7,7 @@ const {
   getMyProfile,
 } = require("../controllers/userController");
 
-const {
-  authenticate, requireIdentityVerification
-} = require("../middleware/authMiddleware");
+const { authenticate } = require("../middleware/authMiddleware");
 
 // Keep your existing registration endpoint.
 router.post("/", createUser);
@@ -18,6 +16,6 @@ router.post("/", createUser);
 router.get("/countries", getCountries);
 
 // Logged-in user's profile.
-router.get("/me", authenticate,requireIdentityVerification, getMyProfile);
+router.get("/me", authenticate, getMyProfile);
 
 module.exports = router;
