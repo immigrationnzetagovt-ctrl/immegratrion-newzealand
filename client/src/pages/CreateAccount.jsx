@@ -22,15 +22,16 @@ const initialForm = {
   familyName: "",
   email: "",
   password: "",
-  confirmPassword: "",
   passportNumber: "",
   documentNumber: "",
   dateOfBirth: "",
   gender: "Male",
   nationality: "",
   visaCategory: "Visitor",
+  visaIssueDate: "",
   visaStartDate: "",
   visaExpiryDate: "",
+  firstEntryDate: "",
   tnzClientNumber: "",
   numberOfEntries: "Single",
   travelExpiryDate: "",
@@ -62,6 +63,7 @@ export default function CreateAccount() {
   const navigate = useNavigate();
 
   const [form, setForm] = useState(initialForm);
+  const [confirmPassword, setConfirmPassword] = useState(""); // UI-only state for visual appearance
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -78,6 +80,7 @@ export default function CreateAccount() {
       ...previous,
       [name]: name === "passportNumber" ? value.toUpperCase() : value,
     }));
+
     setError("");
   }
 
@@ -86,36 +89,41 @@ export default function CreateAccount() {
     setError("");
     setSuccess("");
 
-    if (form.password !== form.confirmPassword) {
-      setError("Passwords do not match.");
+    if (!form.password) {
+      setError("Please enter a password.");
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
-    if (!form.passportNumber.startsWith("VV")) {
-      setError('Passport number must start with "VV".');
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return;
-    }
-    
+
     setLoading(true);
+
     try {
       const response = await api.post("/users", form);
+
       setSuccess(
         response.data.message || "Demo account created successfully."
       );
+
       setForm(initialForm);
+      setConfirmPassword("");
+
       setTimeout(() => {
         navigate("/login");
       }, 1000);
     } catch (err) {
       const data = err.response?.data;
+
       const message = Array.isArray(data?.errors)
-        ? data.errors.map((item) => item.message).join(" ")
+        ? data.errors
+            .map((item) => `${item.field}: ${item.message}`)
+            .join(" ")
         : data?.message;
+
       setError(
         message ||
           "Could not create the account. Check your backend connection."
       );
+
       window.scrollTo({ top: 0, behavior: "smooth" });
     } finally {
       setLoading(false);
@@ -158,7 +166,7 @@ export default function CreateAccount() {
         <span className="text-[#333333]">&gt;</span>
         <span className="hover:underline cursor-pointer shrink-0">VisaView</span>
         <span className="text-[#333333]">&gt;</span>
-        <span className="text-[#222222] font-bold shrink-0">Create Demo Account</span>
+        <span className="text-[#222222] font-bold shrink-0">Create  Account</span>
       </div>
 
       {/* Main Container */}
@@ -179,9 +187,9 @@ export default function CreateAccount() {
               <span className="text-[9px] mt-[3px] text-[#003399]">►</span>
               <span>Verify Visa Record</span>
             </li>
-            <li className="flex items-start gap-1.5 font-bold cursor-pointer hover:underline pl-4">
+            <li className="flex items-start gap-1.5 cursor-pointer hover:underline pl-4">
               <span className="text-[9px] mt-[3px] text-[#003399]">►</span>
-              <span>Create Demo Account</span>
+              <span>Create  Account</span>
             </li>
           </ul>
         </aside>
@@ -199,7 +207,7 @@ export default function CreateAccount() {
           {/* Title and Instructions */}
           <div className="space-y-1 mb-6">
             <h1 className="text-2xl sm:text-[28px] font-normal text-[#003399] tracking-tight leading-none mb-3">
-              Create your demo account
+              Create your account
             </h1>
             <p className="text-[13px] text-[#222222]">
               Complete the fields below. Your demo information will be submitted together in one request.
@@ -243,6 +251,7 @@ export default function CreateAccount() {
                   onChange={handleChange}
                   placeholder="Enter family name"
                   autoComplete="family-name"
+                  required
                   className="w-full h-[32px] px-2.5 bg-white border border-[#7f9db9] text-[13px] text-[#222222] outline-none rounded-[2px] focus:border-[#003399]"
                 />
               </div>
@@ -257,6 +266,7 @@ export default function CreateAccount() {
                   onChange={handleChange}
                   placeholder="name@example.com"
                   autoComplete="email"
+                  required
                   className="w-full h-[32px] px-2.5 bg-white border border-[#7f9db9] text-[13px] text-[#222222] outline-none rounded-[2px] focus:border-[#003399]"
                 />
               </div>
@@ -269,8 +279,9 @@ export default function CreateAccount() {
                   type="password"
                   value={form.password}
                   onChange={handleChange}
-                  placeholder="Minimum 12 characters"
+                  placeholder="Enter password"
                   autoComplete="new-password"
+                  required
                   className="w-full h-[32px] px-2.5 bg-white border border-[#7f9db9] text-[13px] text-[#222222] outline-none rounded-[2px] focus:border-[#003399]"
                 />
               </div>
@@ -281,8 +292,8 @@ export default function CreateAccount() {
                   id="confirmPassword"
                   name="confirmPassword"
                   type="password"
-                  value={form.confirmPassword}
-                  onChange={handleChange}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Enter password again"
                   autoComplete="new-password"
                   className="w-full h-[32px] px-2.5 bg-white border border-[#7f9db9] text-[13px] text-[#222222] outline-none rounded-[2px] focus:border-[#003399]"
@@ -302,7 +313,8 @@ export default function CreateAccount() {
                   type="text"
                   value={form.passportNumber}
                   onChange={handleChange}
-                  placeholder="VVDEMO12345"
+                  placeholder="enter passport number"
+                  required
                   className="w-full h-[32px] px-2.5 bg-white border border-[#7f9db9] text-[13px] text-[#222222] outline-none rounded-[2px] uppercase focus:border-[#003399]"
                 />
               </div>
@@ -316,6 +328,7 @@ export default function CreateAccount() {
                   value={form.documentNumber}
                   onChange={handleChange}
                   placeholder="Enter document number"
+                  required
                   className="w-full h-[32px] px-2.5 bg-white border border-[#7f9db9] text-[13px] text-[#222222] outline-none rounded-[2px] focus:border-[#003399]"
                 />
               </div>
@@ -328,6 +341,7 @@ export default function CreateAccount() {
                   type="date"
                   value={form.dateOfBirth}
                   onChange={handleChange}
+                  required
                   className="w-full h-[32px] px-2.5 bg-white border border-[#7f9db9] text-[13px] text-[#222222] outline-none rounded-[2px] focus:border-[#003399]"
                 />
               </div>
@@ -339,6 +353,7 @@ export default function CreateAccount() {
                   name="gender"
                   value={form.gender}
                   onChange={handleChange}
+                  required
                   className="w-full h-[32px] px-2 bg-white border border-[#7f9db9] text-[13px] text-[#222222] outline-none rounded-[2px]"
                 >
                   {genderOptions.map((opt) => (
@@ -354,6 +369,7 @@ export default function CreateAccount() {
                   name="nationality"
                   value={form.nationality}
                   onChange={handleChange}
+                  required
                   className="w-full h-[32px] px-2 bg-white border border-[#7f9db9] text-[13px] text-[#222222] outline-none rounded-[2px]"
                 >
                   <option value="">Select country</option>
@@ -375,12 +391,26 @@ export default function CreateAccount() {
                   name="visaCategory"
                   value={form.visaCategory}
                   onChange={handleChange}
+                  required
                   className="w-full h-[32px] px-2 bg-white border border-[#7f9db9] text-[13px] text-[#222222] outline-none rounded-[2px]"
                 >
                   {visaOptions.map((v) => (
                     <option key={v.value} value={v.value}>{v.label}</option>
                   ))}
                 </select>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-[180px_1fr] items-center gap-1 sm:gap-4">
+                <label htmlFor="visaIssueDate" className="text-[13px] text-[#222222]">Visa issue date *</label>
+                <input
+                  id="visaIssueDate"
+                  name="visaIssueDate"
+                  type="date"
+                  value={form.visaIssueDate}
+                  onChange={handleChange}
+                  required
+                  className="w-full h-[32px] px-2.5 bg-white border border-[#7f9db9] text-[13px] text-[#222222] outline-none rounded-[2px] focus:border-[#003399]"
+                />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-[180px_1fr] items-center gap-1 sm:gap-4">
@@ -391,6 +421,7 @@ export default function CreateAccount() {
                   type="date"
                   value={form.visaStartDate}
                   onChange={handleChange}
+                  required
                   className="w-full h-[32px] px-2.5 bg-white border border-[#7f9db9] text-[13px] text-[#222222] outline-none rounded-[2px] focus:border-[#003399]"
                 />
               </div>
@@ -403,6 +434,7 @@ export default function CreateAccount() {
                   type="date"
                   value={form.visaExpiryDate}
                   onChange={handleChange}
+                  required
                   className="w-full h-[32px] px-2.5 bg-white border border-[#7f9db9] text-[13px] text-[#222222] outline-none rounded-[2px] focus:border-[#003399]"
                 />
               </div>
@@ -415,7 +447,20 @@ export default function CreateAccount() {
                   type="text"
                   value={form.tnzClientNumber}
                   onChange={handleChange}
-                  placeholder="Enter demo client number"
+                  placeholder="Enter client number"
+                  className="w-full h-[32px] px-2.5 bg-white border border-[#7f9db9] text-[13px] text-[#222222] outline-none rounded-[2px] focus:border-[#003399]"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-[180px_1fr] items-center gap-1 sm:gap-4">
+                <label htmlFor="firstEntryDate" className="text-[13px] text-[#222222]">First entry date *</label>
+                <input
+                  id="firstEntryDate"
+                  name="firstEntryDate"
+                  type="date"
+                  value={form.firstEntryDate}
+                  onChange={handleChange}
+                  required
                   className="w-full h-[32px] px-2.5 bg-white border border-[#7f9db9] text-[13px] text-[#222222] outline-none rounded-[2px] focus:border-[#003399]"
                 />
               </div>
@@ -427,6 +472,7 @@ export default function CreateAccount() {
                   name="numberOfEntries"
                   value={form.numberOfEntries}
                   onChange={handleChange}
+                  required
                   className="w-full h-[32px] px-2 bg-white border border-[#7f9db9] text-[13px] text-[#222222] outline-none rounded-[2px]"
                 >
                   {entryOptions.map((e) => (
@@ -443,6 +489,7 @@ export default function CreateAccount() {
                   type="date"
                   value={form.travelExpiryDate}
                   onChange={handleChange}
+                  required
                   className="w-full h-[32px] px-2.5 bg-white border border-[#7f9db9] text-[13px] text-[#222222] outline-none rounded-[2px] focus:border-[#003399]"
                 />
               </div>
@@ -462,7 +509,7 @@ export default function CreateAccount() {
 
               <div className="grid grid-cols-1 sm:grid-cols-[180px_1fr] items-start gap-1 sm:gap-4 pt-2">
                 <label htmlFor="visaConditions" className="text-[13px] text-[#222222] pt-1">
-                  Visa conditions <span className="text-slate-400 font-normal">(Optional)</span>
+                  Visa conditions <span className="text-slate-400 font-normal"></span>
                 </label>
                 <div>
                   <textarea
@@ -500,6 +547,7 @@ export default function CreateAccount() {
                 type="button"
                 onClick={() => {
                   setForm(initialForm);
+                  setConfirmPassword("");
                   setError("");
                   setSuccess("");
                 }}

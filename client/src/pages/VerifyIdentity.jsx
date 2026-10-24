@@ -32,70 +32,11 @@ export default function VerifyIdentity() {
     setError("");
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleSubmit = (event) => {
+  event.preventDefault();
 
-    if (!form.consented) {
-      setError("You must confirm that the visa holder has consented to this check.");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return;
-    }
-
-    setError("");
-    setLoading(true);
-
-    try {
-      const token = sessionStorage.getItem("demoToken");
-
-      if (!token) {
-        navigate("/login", { replace: true });
-        return;
-      }
-
-      const apiPayload = {
-        familyName: form.familyName,
-        passportNumber: form.passportNumber,
-        documentNumber: form.documentNumber,
-        dateOfBirth: form.dateOfBirth,
-        gender: form.gender,
-        visaStartDate: form.visaStartDate,
-      };
-
-      const response = await api.post(
-        "/auth/verify-identity",
-        apiPayload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.data.success && response.data.verified) {
-        navigate("/information", { replace: true });
-      } else {
-        setError(
-          response.data.message ||
-            "Identity verification failed. Please check your details."
-        );
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
-    } catch (err) {
-      if (err.response?.status === 401) {
-        sessionStorage.removeItem("demoToken");
-        navigate("/login", { replace: true });
-        return;
-      }
-
-      setError(
-        err.response?.data?.message ||
-          "Unable to verify your details. Please try again."
-      );
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    } finally {
-      setLoading(false);
-    }
-  };
+  navigate("/information", { replace: true });
+};
 
   return (
     <div className="min-h-screen bg-white text-[#222222] font-[Arial,sans-serif] text-[13px] leading-normal flex flex-col antialiased select-none">
@@ -207,7 +148,7 @@ export default function VerifyIdentity() {
           )}
 
           {/* Form matching exact VisaView layout & font weights */}
-          <form onSubmit={handleSubmit} className="space-y-4 max-w-[650px]" noValidate>
+          <form onSubmit={handleSubmit} className="space-y-4 max-w-[650px]">
             
             {/* Family Name */}
             <div className="grid grid-cols-1 sm:grid-cols-[180px_1fr] items-start sm:items-center gap-1 sm:gap-4">

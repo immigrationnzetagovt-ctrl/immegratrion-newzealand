@@ -4,10 +4,12 @@ import { Menu, X, Home, AlertCircle, Loader2, LogOut } from "lucide-react";
 
 import logo from "../assets/immegration.png";
 import api from "../api/axios";
+import countries from "i18n-iso-countries";
 
+import en from "i18n-iso-countries/langs/en.json";
 export default function Information() {
   const navigate = useNavigate();
-
+  countries.registerLocale(en);
   const [user, setUser] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -38,7 +40,7 @@ export default function Information() {
         if (active) {
           setError(
             err.response?.data?.message ||
-              "Unable to load your information. The backend endpoint may not be implemented yet."
+              "Unable to load your information. The backend endpoint may not be implemented yet.",
           );
         }
       } finally {
@@ -72,7 +74,7 @@ export default function Information() {
 
     const day = String(date.getDate()).padStart(2, "0");
     const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = String(date.getFullYear()).slice(-2);
+    const year = String(date.getFullYear());
 
     return `${day}/${month}/${year}`;
   }
@@ -112,7 +114,11 @@ export default function Information() {
             className="lg:hidden text-white p-1 hover:bg-[#004a87] rounded"
             aria-label="Toggle Navigation Sidebar"
           >
-            {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {sidebarOpen ? (
+              <X className="w-6 h-6" />
+            ) : (
+              <Menu className="w-6 h-6" />
+            )}
           </button>
           <img
             src={logo}
@@ -144,14 +150,21 @@ export default function Information() {
 
       {/* Breadcrumb Bar */}
       <div className="bg-[#dbe6f1] h-[34px] px-4 sm:px-[72px] text-[13px] text-[#003399] flex items-center gap-1.5 border-b border-[#c2d3e4] overflow-x-auto whitespace-nowrap">
-        <Link to="/" className="flex items-center gap-1 hover:underline text-[#003399] shrink-0 font-normal">
+        <Link
+          to="/"
+          className="flex items-center gap-1 hover:underline text-[#003399] shrink-0 font-normal"
+        >
           <Home className="w-3.5 h-3.5 text-[#222222]" />
           <span>Home</span>
         </Link>
         <span className="text-[#333333]">&gt;</span>
-        <span className="hover:underline cursor-pointer shrink-0 font-normal">VisaView</span>
+        <span className="hover:underline cursor-pointer shrink-0 font-normal">
+          VisaView
+        </span>
         <span className="text-[#333333]">&gt;</span>
-        <span className="text-[#222222] font-bold shrink-0">Visa Verification Enquiry</span>
+        <span className="text-[#222222] font-bold shrink-0">
+          Visa Verification Enquiry
+        </span>
       </div>
 
       {/* Main Layout Container */}
@@ -162,7 +175,9 @@ export default function Information() {
             sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
           }`}
         >
-          <h2 className="text-[17px] font-bold text-[#003399] mb-3 pl-4">VisaView</h2>
+          <h2 className="text-[17px] font-bold text-[#003399] mb-3 pl-4">
+            VisaView
+          </h2>
           <ul className="space-y-2 text-[13px] text-[#003399]">
             <li className="flex items-start gap-1.5 cursor-pointer hover:underline pl-4 font-normal">
               <span className="text-[9px] mt-[3px] text-[#003399]">►</span>
@@ -193,7 +208,9 @@ export default function Information() {
           <div className="flex flex-col sm:flex-row sm:items-baseline justify-between text-[13px] mb-6 border-b border-slate-200 pb-3 gap-2">
             <div>
               <span className="font-normal text-[#333333]">Acting for:</span>{" "}
-              <span className="font-bold text-[#222222]">Visa Verification Service</span>
+              <span className="font-bold text-[#222222]">
+                Visa Verification Service
+              </span>
             </div>
             <div className="text-[13px] flex items-center gap-2">
               <span className="font-normal text-[#333333]">Logged in:</span>{" "}
@@ -204,7 +221,7 @@ export default function Information() {
           </div>
 
           {/* Title and Instructions */}
-          <div className="space-y-2 mb-6">
+          <div className="space-y-0 mb-6">
             <h1 className="text-[28px] font-normal text-[#003399] tracking-tight leading-none mb-3">
               Visa Verification Enquiry
             </h1>
@@ -212,7 +229,8 @@ export default function Information() {
               Enter the details of the visa to be verified.
             </p>
             <p className="text-[13px] font-normal text-[#222222]">
-              Please enter these details exactly as they appear in the visa holder's passport.
+              Please enter these details exactly as they appear in the visa
+              holder's passport.
             </p>
           </div>
 
@@ -220,13 +238,18 @@ export default function Information() {
           {loading && (
             <div className="py-12 flex items-center justify-center gap-3 text-[#003399]">
               <Loader2 className="w-5 h-5 animate-spin" />
-              <span className="text-sm font-semibold">Retrieving Visa Record...</span>
+              <span className="text-sm font-semibold">
+                Retrieving Visa Record...
+              </span>
             </div>
           )}
 
           {/* Error Banner */}
           {error && !loading && (
-            <div role="alert" className="p-3 mb-6 bg-red-50 border border-red-200 text-red-700 text-xs flex items-center justify-between rounded-xs">
+            <div
+              role="alert"
+              className="p-3 mb-6 bg-red-50 border border-red-200 text-red-700 text-xs flex items-center justify-between rounded-xs"
+            >
               <div className="flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{error}</span>
@@ -242,33 +265,58 @@ export default function Information() {
                 {/* Left Column */}
                 <div className="space-y-2">
                   <div className="grid grid-cols-[160px_1fr] items-baseline">
-                    <span className="font-bold text-[#222222]">Family Name *</span>
-                    <span className="font-normal text-[#222222] uppercase">{user.familyName}</span>
+                    <span className="font-bold text-[#222222]">
+                      Family Name *
+                    </span>
+                    <span className="font-normal text-[#222222] uppercase">
+                      {user.familyName}
+                    </span>
                   </div>
 
                   <div className="grid grid-cols-[160px_1fr] items-baseline pt-2">
-                    <span className="font-bold text-[#222222]">Date of Birth</span>
-                    <span className="font-normal text-[#222222]">{formatValue("dateOfBirth", user.dateOfBirth)}</span>
+                    <span className="font-bold text-[#222222]">
+                      Date of Birth
+                    </span>
+                    <span className="font-normal text-[#222222]">
+                      {formatValue("dateOfBirth", user.dateOfBirth)}
+                    </span>
                   </div>
 
                   <div className="grid grid-cols-[160px_1fr] items-baseline">
                     <span className="font-bold text-[#222222]">Gender</span>
-                    <span className="font-normal text-[#222222]">{user.gender ? user.gender.charAt(0).toUpperCase() : "M"}</span>
+                    <span className="font-normal text-[#222222]">
+                      {user.gender ? user.gender.charAt(0).toUpperCase() : "M"}
+                    </span>
                   </div>
 
                   <div className="grid grid-cols-[160px_1fr] items-baseline">
-                    <span className="font-bold text-[#222222]">Passport Nationality</span>
-                    <span className="font-normal text-[#222222]">{user.nationality || "India"}</span>
+                    <span className="font-bold text-[#222222]">
+                      Passport Nationality
+                    </span>
+
+                    <span className="font-normal text-[#222222]">
+                      {countries.getName(user.nationality, "en", {
+                        select: "official",
+                      }) || user.nationality}
+                    </span>
                   </div>
 
                   <div className="grid grid-cols-[160px_1fr] items-baseline">
-                    <span className="font-bold text-[#222222]">Passport Number</span>
-                    <span className="font-normal text-[#222222] uppercase">{user.passportNumber}</span>
+                    <span className="font-bold text-[#222222]">
+                      Passport Number
+                    </span>
+                    <span className="font-normal text-[#222222] uppercase">
+                      {user.passportNumber}
+                    </span>
                   </div>
 
                   <div className="grid grid-cols-[160px_1fr] items-baseline">
-                    <span className="font-bold text-[#222222]">TNZ Client Number</span>
-                    <span className="font-normal text-[#222222]">{user.tnzClientNumber || "89904285"}</span>
+                    <span className="font-bold text-[#222222]">
+                      TNZ Client Number
+                    </span>
+                    <span className="font-normal text-[#222222]">
+                      {user.tnzClientNumber || "89904285"}
+                    </span>
                   </div>
                 </div>
 
@@ -276,39 +324,66 @@ export default function Information() {
                 <div className="space-y-2">
                   <div className="grid grid-cols-[160px_1fr] items-baseline">
                     <span className="font-bold text-[#222222]">Visa Type</span>
-                    <span className="font-normal text-[#222222]">{user.visaCategory || "Visitor"}</span>
+                    <span className="font-normal text-[#222222]">
+                      {user.visaCategory || "Visitor"}
+                    </span>
                   </div>
 
                   <div className="grid grid-cols-[160px_1fr] items-baseline pt-2">
-                    <span className="font-bold text-[#222222]">Visa Start Date</span>
-                    <span className="font-normal text-[#222222]">{formatValue("visaStartDate", user.visaStartDate)}</span>
+                    <span className="font-bold text-[#222222]">
+                      Visa Start Date
+                    </span>
+                    <span className="font-normal text-[#222222]">
+                      {formatValue("visaStartDate", user.visaStartDate)}
+                    </span>
                   </div>
 
                   <div className="grid grid-cols-[160px_1fr] items-baseline">
-                    <span className="font-bold text-[#222222]">First Entry Before</span>
-                    <span className="font-normal text-[#222222]">{formatValue("firstEntryBefore", user.firstEntryBefore)}</span>
+                    <span className="font-bold text-[#222222]">
+                      First Entry Before
+                    </span>
+                    <span className="font-normal text-[#222222]">
+                      {formatValue("firstEntryBefore", user.firstEntryBefore)}
+                    </span>
                   </div>
 
                   <div className="grid grid-cols-[160px_1fr] items-baseline">
-                    <span className="font-bold text-[#222222]">Number of Entries</span>
-                    <span className="font-normal text-[#222222]">{user.numberOfEntries || "Single"}</span>
+                    <span className="font-bold text-[#222222]">
+                      Number of Entries
+                    </span>
+                    <span className="font-normal text-[#222222]">
+                      {user.numberOfEntries || "Single"}
+                    </span>
                   </div>
 
                   <div className="grid grid-cols-[160px_1fr] items-baseline">
-                    <span className="font-bold text-[#222222]">Expiry Date Travel</span>
-                    <span className="font-normal text-[#222222]">{formatValue("travelExpiryDate", user.travelExpiryDate || user.visaExpiryDate)}</span>
+                    <span className="font-bold text-[#222222]">
+                      Expiry Date Travel
+                    </span>
+                    <span className="font-normal text-[#222222]">
+                      {formatValue(
+                        "travelExpiryDate",
+                        user.travelExpiryDate || user.visaExpiryDate,
+                      )}
+                    </span>
                   </div>
 
                   <div className="grid grid-cols-[160px_1fr] items-baseline">
-                    <span className="font-bold text-[#222222]">Visa Expiry</span>
-                    <span className="font-normal text-[#222222]">{formatValue("visaExpiryDate", user.visaExpiryDate)}</span>
+                    <span className="font-bold text-[#222222]">
+                      Visa Expiry
+                    </span>
+                    <span className="font-normal text-[#222222]">
+                      {formatValue("visaExpiryDate", user.visaExpiryDate)}
+                    </span>
                   </div>
                 </div>
               </div>
 
               {/* Visa Conditions Section */}
               <div className="pt-4 space-y-2">
-                <h3 className="font-bold text-[#222222] text-[13px]">Visa Conditions</h3>
+                <h3 className="font-bold text-[#222222] text-[13px]">
+                  Visa Conditions
+                </h3>
                 <p className="text-[13px] font-normal text-[#222222] leading-snug max-w-[760px]">
                   {user.visaConditions ||
                     "Stay subject to grant of entry permission. The holder may work remotely for overseas or clients. The holder shall not study for more than 3 months. In order to return to New Zealand, the holder must, at their own expense, hold an onward ticket to another country. The holder must not work in NZ. This visa allows multiple entry travel to New Zealand. Contact your local immigration office if you need further information. The holder must leave before visa expiry or face deportation."}
@@ -319,19 +394,33 @@ export default function Information() {
               <div className="space-y-1 pt-2 text-[13px]">
                 <div className="grid grid-cols-[160px_1fr] items-baseline">
                   <span className="font-bold text-[#222222]">Expiry Date</span>
-                  <span className="font-normal text-[#222222]">{formatValue("expiryDate", user.visaExpiryDate || "2026-04-04")}</span>
+                  <span className="font-normal text-[#222222]">
+                    {formatValue(
+                      "expiryDate",
+                      user.visaExpiryDate || "----",
+                    )}
+                  </span>
                 </div>
 
                 <div className="grid grid-cols-[160px_1fr] items-baseline">
                   <span className="font-bold text-[#222222]">Valid as at</span>
-                  <span className="font-normal text-[#222222]">{formatValue("validAsAt", user.updatedAt || new Date())}</span>
+                  <span className="font-normal text-[#222222]">
+                    {formatValue(
+                      "expiryDate",
+                      user.visaExpiryDate || "----",
+                    )}
+                  </span>
                 </div>
               </div>
 
               {/* Legal Warning Notice */}
               <div className="pt-3">
                 <p className="text-[13px] font-normal text-[#222222] leading-snug">
-                  <span className="font-bold">Warning:</span> If you download this visa information, you must ensure that you have understood and comply with the Privacy Act 2020, including with respect to the use, storage and disclosure of information contained in this document.
+                  <span className="font-bold">Warning:</span> If you download
+                  this visa information, you must ensure that you have
+                  understood and comply with the Privacy Act 2020, including
+                  with respect to the use, storage and disclosure of information
+                  contained in this document.
                 </p>
               </div>
 

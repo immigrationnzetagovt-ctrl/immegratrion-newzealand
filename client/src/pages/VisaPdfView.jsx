@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Printer, Loader2, ArrowLeft } from "lucide-react";
+import countries from "i18n-iso-countries";
+import en from "i18n-iso-countries/langs/en.json";
 
 import api from "../api/axios";
 import topRightLogo from "../assets/top-righ-corner-logo.png";
 import topRightLogo2 from "../assets/top-righ-corner-logo-up.png";
 import bottomRightLogo from "../assets/bottom_right__newzealand_logo.png";
 import bottomLeftLogo from "../assets/bottom_left__ministry_logo.svg";
+
+countries.registerLocale(en);
 
 export default function VisaPdfView() {
   const navigate = useNavigate();
@@ -34,20 +38,25 @@ export default function VisaPdfView() {
     fetchUser();
   }, [navigate]);
 
+  // Reusable Date Formatter (DD-MM-YYYY or DD-Month-YYYY)
   function formatDate(dateStr, includeMonthName = false) {
     if (!dateStr) return "";
     const date = new Date(dateStr);
     if (isNaN(date.getTime())) return dateStr;
 
+    const day = String(date.getDate()).padStart(2, "0");
+    const year = date.getFullYear();
+
     if (includeMonthName) {
-      const day = String(date.getDate()).padStart(2, "0");
       const months = [
         "January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"
       ];
-      return `${day}-${months[date.getMonth()]}-${date.getFullYear()}`;
+      return `${day}-${months[date.getMonth()]}-${year}`;
     }
-    return date.toISOString().split("T")[0];
+
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    return `${day}-${month}-${year}`;
   }
 
   function getTodayFormatted() {
@@ -56,6 +65,47 @@ export default function VisaPdfView() {
     const mm = String(date.getMonth() + 1).padStart(2, "0");
     const yyyy = date.getFullYear();
     return `${dd}/${mm}/${yyyy}`;
+  }
+
+  // Country Code to Full Name Converter (e.g., IN -> India)
+  function getFullCountryName(code) {
+    if (!code) return "";
+    const upperCode = code.toUpperCase();
+    const fullName = countries.getName(upperCode, "en", { select: "official" });
+    return fullName || code;
+  }
+
+  // Category-specific content templates mapping actual visa categories
+  function getCategoryContent(category) {
+    const cat = (category || "").toLowerCase();
+    switch (cat) {
+      case "transit":
+        return {
+          title: "Transit visa application approved",
+          desc: "We have approved your application for a New Zealand Transit Visa.",
+          headerTitle: "Transit Visa details"
+        };
+      case "student":
+        return {
+          title: "Student visa application approved",
+          desc: "We have approved your application for a New Zealand Student Visa.",
+          headerTitle: "Student Visa details"
+        };
+      case "work":
+        return {
+          title: "Work visa application approved",
+          desc: "We have approved your application for a New Zealand Work Visa.",
+          headerTitle: "Work Visa details"
+        };
+      case "visitor":
+      case "tourist":
+      default:
+        return {
+          title: "Visitor visa application approved",
+          desc: "We have approved your application for a New Zealand Visitor Visa.",
+          headerTitle: "Visitor Visa details"
+        };
+    }
   }
 
   if (loading) {
@@ -76,6 +126,8 @@ export default function VisaPdfView() {
   }
 
   const currentDateStr = getTodayFormatted();
+  const categoryDetails = getCategoryContent(user.visaCategory);
+  const fullNationality = getFullCountryName(user.nationality);
 
   return (
     <div className="bg-slate-200 min-h-screen py-8 print:py-0 print:bg-white flex flex-col items-center select-none font-sans">
@@ -134,7 +186,7 @@ export default function VisaPdfView() {
                     <span className="font-bold">Family, First Name: </span>{user.familyName}
                   </td>
                   <td className="border border-black p-1.5 w-1/3">
-                    <span className="font-bold">Passport Nationality: </span>{user.nationality}
+                    <span className="font-bold">Passport Nationality: </span>{fullNationality}
                   </td>
                   <td className="border border-black p-1.5 w-1/3">
                     <span className="font-bold">Passport Number: </span>{user.passportNumber}
@@ -164,7 +216,7 @@ export default function VisaPdfView() {
                 </tr>
                 <tr>
                   <td className="border border-black p-1.5">
-                    <span className="font-bold">First Entry Before: </span>{formatDate(user.travelExpiryDate)}
+                    <span className="font-bold">First Entry Before: </span>{formatDate(user.firstEntryDate)}
                   </td>
                   <td className="border border-black p-1.5">
                     <span className="font-bold">Number of Entries: </span>{user.numberOfEntries}
@@ -227,17 +279,17 @@ export default function VisaPdfView() {
             <div className="mb-6 space-y-1">
               <div><span className="font-bold">Application number:</span> {user.applicationNumber || "VV00211932"}</div>
               <div><span className="font-bold">Client number:</span> {user.tnzClientNumber || "77892071"}</div>
-              <div>{formatDate(user.createdAt, true) || "09-September-2026"}</div>
+              <div>{formatDate(user.visaIssueDate, true)}</div>
             </div>
 
             <div className="mb-6 text-xs font-normal">Kia ora {user.familyName}</div>
 
             <div className="mb-6">
-              <div className="font-semibold text-xs">Visitor visa application approved</div>
-              <div>We have approved your application for a New Zealand Visitor Visa - Business events (participation).</div>
+              <div className="font-semibold text-xs">{categoryDetails.title}</div>
+              <div>{categoryDetails.desc}</div>
             </div>
 
-            <div className="text-center font-semibold text-xs mb-6">Visitor Visa details</div>
+            <div className="text-center font-semibold text-xs mb-6">{categoryDetails.headerTitle}</div>
 
             <div className="mb-6">
               <div className="font-bold mb-3">Applicant details</div>
@@ -246,7 +298,7 @@ export default function VisaPdfView() {
                 <div><span className="font-normal">Date of birth:</span> <span className="font-normal">{formatDate(user.dateOfBirth, true)}</span></div>
                 <div><span className="font-normal">Gender:</span> <span className="font-normal">{user.gender}</span></div>
                 <div><span className="font-normal">Passport number:</span> <span className="font-normal">{user.passportNumber}</span></div>
-                <div><span className="font-normal">Nationality:</span> <span className="font-normal">{user.nationality}</span></div>
+                <div><span className="font-normal">Nationality:</span> <span className="font-normal">{fullNationality}</span></div>
                 <div><span className="font-normal">Client number:</span> <span className="font-normal">{user.tnzClientNumber}</span></div>
               </div>
             </div>
@@ -272,7 +324,7 @@ export default function VisaPdfView() {
               )}
             </div>
 
-            <div className="font-semibold text-[10px] mt-8">
+<div className="text-center font-bold text-xs uppercase mt-26 tracking-wide text-slate-900">
               If you do not comply with these conditions you may become liable for deportation.
             </div>
           </div>

@@ -8,14 +8,13 @@ const userSchema = z
 
     email: z.string().trim().email().max(254),
 
-    password: z.string().min(12).max(128),
+    // Any non-empty password; no format or length restriction.
+    password: z.string().min(1),
 
-    confirmPassword: z.string(),
 
-    passportNumber: z
-      .string()
-      .trim()
-      .regex(/^VV[A-Z0-9]+$/, "Passport number must start with VV"),
+
+    // Removed VV prefix restriction.
+    passportNumber: z.string().trim().min(1).max(100),
 
     documentNumber: z.string().trim().min(1).max(100),
 
@@ -28,7 +27,7 @@ const userSchema = z
       "Prefer not to say",
     ]),
 
-    nationality: z.string().length(2),
+    nationality: z.string().trim().length(2),
 
     visaCategory: z.enum([
       "Visitor",
@@ -38,9 +37,14 @@ const userSchema = z
       "Transit",
     ]),
 
+    visaIssueDate: dateSchema,
+
     visaStartDate: dateSchema,
 
+    // No comparison with visaStartDate.
     visaExpiryDate: dateSchema,
+
+    firstEntryDate: dateSchema,
 
     tnzClientNumber: z.string().trim().min(1).max(100),
 
@@ -52,17 +56,9 @@ const userSchema = z
 
     visaConditions: z.string().max(10000).optional().default(""),
   })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  })
   .refine((data) => new Date(data.dateOfBirth) < new Date(), {
     message: "Date of birth must be in the past",
     path: ["dateOfBirth"],
-  })
-  .refine((data) => data.visaExpiryDate > data.visaStartDate, {
-    message: "Visa expiry must be after the start date",
-    path: ["visaExpiryDate"],
   });
 
 module.exports = userSchema;

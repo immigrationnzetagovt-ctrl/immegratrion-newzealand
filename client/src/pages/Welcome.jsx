@@ -209,7 +209,7 @@ export default function Home() {
               <span className="cursor-pointer hover:underline underline-offset-4">Process to apply</span>
               <span className="cursor-pointer hover:underline underline-offset-4">For employers</span>
               <button
-                onClick={() => navigate('/login')}
+                onClick={() => navigate('/login-account')}
                 className="inline-flex items-center justify-center rounded-[4px] bg-[#087dc1] text-white font-bold min-w-[82px] min-h-[43px] hover:bg-[#056aa7] transition-colors"
               >
                 Login

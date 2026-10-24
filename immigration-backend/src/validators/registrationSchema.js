@@ -6,7 +6,7 @@ const registrationSchema = z
 
     email: z.string().trim().email().max(254),
 
-    password: z.string().min(12).max(128),
+    password: z.string().min(1),
 
     confirmPassword: z.string(),
 

@@ -6,7 +6,12 @@ exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password) {
+    if (
+      typeof email !== "string" ||
+      !email.trim() ||
+      typeof password !== "string" ||
+      password.length === 0
+    ) {
       return res.status(400).json({
         success: false,
         message: "Email and password are required.",
@@ -24,7 +29,10 @@ exports.login = async (req, res) => {
       });
     }
 
-    const passwordMatches = await bcrypt.compare(password, user.passwordHash);
+    const passwordMatches = await bcrypt.compare(
+      password,
+      user.passwordHash
+    );
 
     if (!passwordMatches) {
       return res.status(401).json({
@@ -36,17 +44,22 @@ exports.login = async (req, res) => {
     const token = jwt.sign(
       { userId: user._id.toString() },
       process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN || "1d" },
+      {
+        expiresIn: process.env.JWT_EXPIRES_IN || "1d",
+      }
     );
 
     return res.status(200).json({
       success: true,
-      message: "Please verify your identity to continue.",
+      message: user.identityVerified
+        ? "Login successful."
+        : "Please verify your identity to continue.",
       token,
       user: {
         id: user._id,
         email: user.email,
         familyName: user.familyName,
+        identityVerified: user.identityVerified,
       },
     });
   } catch (error) {
@@ -70,14 +83,19 @@ exports.verifyIdentity = async (req, res) => {
       visaStartDate,
     } = req.body;
 
-    // Validate required fields
     if (
-      !familyName ||
-      !passportNumber ||
-      !documentNumber ||
-      !dateOfBirth ||
-      !gender ||
-      !visaStartDate
+      typeof familyName !== "string" ||
+      typeof passportNumber !== "string" ||
+      typeof documentNumber !== "string" ||
+      typeof dateOfBirth !== "string" ||
+      typeof gender !== "string" ||
+      typeof visaStartDate !== "string" ||
+      !familyName.trim() ||
+      !passportNumber.trim() ||
+      !documentNumber.trim() ||
+      !dateOfBirth.trim() ||
+      !gender.trim() ||
+      !visaStartDate.trim()
     ) {
       return res.status(400).json({
         success: false,
@@ -85,8 +103,6 @@ exports.verifyIdentity = async (req, res) => {
       });
     }
 
-    // Find the authenticated applicant.
-    // req.user.id must be populated by your existing JWT middleware.
     const user = await User.findById(req.userId);
 
     if (!user) {
@@ -96,25 +112,24 @@ exports.verifyIdentity = async (req, res) => {
       });
     }
 
-    // Normalize text fields without changing the stored values.
     const normalize = (value) =>
       String(value).trim().toLowerCase();
 
-    // Parse and validate date-only inputs.
     const parseDate = (value) => {
-      if (
-        typeof value !== "string" ||
-        !/^\d{4}-\d{2}-\d{2}$/.test(value)
-      ) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
         return null;
       }
 
       const date = new Date(`${value}T00:00:00.000Z`);
 
-      return !Number.isNaN(date.getTime()) &&
-        date.toISOString().slice(0, 10) === value
-        ? value
-        : null;
+      if (
+        Number.isNaN(date.getTime()) ||
+        date.toISOString().slice(0, 10) !== value
+      ) {
+        return null;
+      }
+
+      return value;
     };
 
     const submittedDOB = parseDate(dateOfBirth);
@@ -136,23 +151,22 @@ exports.verifyIdentity = async (req, res) => {
       : null;
 
     const matches =
-      normalize(user.familyName || "") === normalize(familyName) &&
-      normalize(user.passportNumber || "") === normalize(passportNumber) &&
-      normalize(user.documentNumber || "") === normalize(documentNumber) &&
+      normalize(user.familyName) === normalize(familyName) &&
+      normalize(user.passportNumber) === normalize(passportNumber) &&
+      normalize(user.documentNumber) === normalize(documentNumber) &&
       storedDOB === submittedDOB &&
-      normalize(user.gender || "") === normalize(gender) &&
+      normalize(user.gender) === normalize(gender) &&
       storedVisaStart === submittedVisaStart;
 
     if (!matches) {
       return res.status(400).json({
-        success: false,
+        success: true,
         verified: false,
         message: "The identity details could not be verified.",
       });
     }
 
     user.identityVerified = true;
-
     await user.save();
 
     return res.status(200).json({
@@ -169,4 +183,3 @@ exports.verifyIdentity = async (req, res) => {
     });
   }
 };
-

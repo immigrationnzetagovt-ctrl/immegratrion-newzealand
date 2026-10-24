@@ -20,7 +20,8 @@ exports.createUser = async (req, res) => {
     const data = result.data;
 
     const countryExists = countries.some(
-      (country) => country.code === data.nationality.toUpperCase(),
+      (country) =>
+        country.code === data.nationality.toUpperCase()
     );
 
     if (!countryExists) {
@@ -29,7 +30,7 @@ exports.createUser = async (req, res) => {
       });
     }
 
-    const email = data.email.toLowerCase();
+    const email = data.email.trim().toLowerCase();
 
     const existingUser = await User.findOne({ email });
 
@@ -49,24 +50,32 @@ exports.createUser = async (req, res) => {
       });
     }
 
+    // Accept any non-empty password format.
+    // Always hash it before storing it.
     const passwordHash = await bcrypt.hash(data.password, 12);
 
     const user = await User.create({
       familyName: data.familyName,
       email,
       passwordHash,
+
       passportNumber: data.passportNumber,
       documentNumber: data.documentNumber,
       dateOfBirth: data.dateOfBirth,
       gender: data.gender,
       nationality: data.nationality.toUpperCase(),
+
       visaCategory: data.visaCategory,
+      visaIssueDate: data.visaIssueDate,
       visaStartDate: data.visaStartDate,
       visaExpiryDate: data.visaExpiryDate,
+      firstEntryDate: data.firstEntryDate,
+
       tnzClientNumber: data.tnzClientNumber,
       numberOfEntries: data.numberOfEntries,
       travelExpiryDate: data.travelExpiryDate,
-      visaConditions: data.visaConditions,
+
+      visaConditions: data.visaConditions || "",
       applicationNumber: data.applicationNumber,
     });
 
@@ -86,7 +95,7 @@ exports.createUser = async (req, res) => {
       });
     }
 
-    console.error("Create user failed:", error.message);
+    console.error("Create user failed:", error);
 
     return res.status(500).json({
       message: "Unable to create user",
@@ -96,19 +105,19 @@ exports.createUser = async (req, res) => {
 
 exports.getMyProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.userId).select("-passwordHash -__v");
+    const user = await User.findById(req.userId).select(
+      "-passwordHash -__v"
+    );
 
     if (!user) {
       return res.status(404).json({
         success: false,
-
         message: "User profile not found.",
       });
     }
 
     return res.status(200).json({
       success: true,
-
       user,
     });
   } catch (error) {
@@ -116,7 +125,6 @@ exports.getMyProfile = async (req, res) => {
 
     return res.status(500).json({
       success: false,
-
       message: "Unable to fetch profile.",
     });
   }

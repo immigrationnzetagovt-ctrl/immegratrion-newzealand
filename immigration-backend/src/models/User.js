@@ -25,12 +25,13 @@ const userSchema = new mongoose.Schema(
     passportNumber: {
       type: String,
       required: true,
-      match: /^VV[A-Z0-9]+$/,
+      trim: true,
     },
 
     documentNumber: {
       type: String,
       required: true,
+      trim: true,
     },
 
     dateOfBirth: {
@@ -47,11 +48,17 @@ const userSchema = new mongoose.Schema(
     nationality: {
       type: String,
       required: true,
+      trim: true,
     },
 
     visaCategory: {
       type: String,
       enum: ["Visitor", "Student", "Work", "Business", "Transit"],
+      required: true,
+    },
+
+    visaIssueDate: {
+      type: Date,
       required: true,
     },
 
@@ -65,9 +72,15 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
 
+    firstEntryDate: {
+      type: Date,
+      required: true,
+    },
+
     tnzClientNumber: {
       type: String,
       required: true,
+      trim: true,
     },
 
     numberOfEntries: {
@@ -85,16 +98,19 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
+      trim: true,
     },
+
     visaConditions: {
-    type: String,
-    default: "",
-    trim: true,
-  },
-  identityVerified: {
-  type: Boolean,
-  default: false,
-},
+      type: String,
+      default: "",
+      trim: true,
+    },
+
+    identityVerified: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
