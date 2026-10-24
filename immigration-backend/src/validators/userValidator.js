@@ -2,18 +2,11 @@ const { z } = require("zod");
 
 const dateSchema = z.iso.date();
 
-const userSchema = z
-  .object({
+const userFields = {
     familyName: z.string().trim().min(1).max(100),
 
     email: z.string().trim().email().max(254),
 
-    // Any non-empty password; no format or length restriction.
-    password: z.string().min(1),
-
-
-
-    // Removed VV prefix restriction.
     passportNumber: z.string().trim().min(1).max(100),
 
     documentNumber: z.string().trim().min(1).max(100),
@@ -55,10 +48,24 @@ const userSchema = z
     applicationNumber: z.string().trim().min(1).max(100),
 
     visaConditions: z.string().max(10000).optional().default(""),
-  })
-  .refine((data) => new Date(data.dateOfBirth) < new Date(), {
+};
+
+const dateOfBirthIsInPast = (data) => new Date(data.dateOfBirth) < new Date();
+const dateOfBirthError = {
     message: "Date of birth must be in the past",
     path: ["dateOfBirth"],
-  });
+};
 
-module.exports = userSchema;
+const userDetailsSchema = z
+  .object(userFields)
+  .refine(dateOfBirthIsInPast, dateOfBirthError);
+
+const userSchema = z
+  .object({
+    ...userFields,
+    // Any non-empty password; no format or length restriction.
+    password: z.string().min(1),
+  })
+  .refine(dateOfBirthIsInPast, dateOfBirthError);
+
+module.exports = { userSchema, userDetailsSchema };

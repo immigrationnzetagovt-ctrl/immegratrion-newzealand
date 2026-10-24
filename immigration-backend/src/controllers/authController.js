@@ -20,7 +20,7 @@ exports.login = async (req, res) => {
 
     const user = await User.findOne({
       email: email.trim().toLowerCase(),
-    }).select("+passwordHash");
+    }).select("+passwordHash +passwordChangedAt");
 
     if (!user) {
       return res.status(401).json({
@@ -42,7 +42,10 @@ exports.login = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { userId: user._id.toString() },
+      {
+        userId: user._id.toString(),
+        passwordChangedAt: user.passwordChangedAt?.getTime() ?? null,
+      },
       process.env.JWT_SECRET,
       {
         expiresIn: process.env.JWT_EXPIRES_IN || "1d",

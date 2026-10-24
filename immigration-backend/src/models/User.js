@@ -22,6 +22,11 @@ const userSchema = new mongoose.Schema(
       select: false,
     },
 
+    passwordChangedAt: {
+      type: Date,
+      select: false,
+    },
+
     passportNumber: {
       type: String,
       required: true,
