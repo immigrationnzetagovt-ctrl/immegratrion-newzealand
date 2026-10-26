@@ -9,7 +9,7 @@ export function AuthProvider({ children }) {
 
   const login = (email, password) => {
     // Temporary frontend-only credentials
-    if (email === "admin@gmail.com" && password === "admin123") {
+    if (email === "admin@gmail.com" && password === "Immegration@1234a") {
       localStorage.setItem("isAuthenticated", "true");
       setIsAuthenticated(true);
       return true;
