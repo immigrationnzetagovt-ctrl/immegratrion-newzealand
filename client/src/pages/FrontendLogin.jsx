@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Navigate, useLocation, useNavigate, Link } from "react-router-dom";
-import { Home, Menu, X, AlertCircle, ShieldCheck } from "lucide-react";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Home, Menu, AlertCircle, ShieldCheck } from "lucide-react";
 
 import { useAuth } from "../context/AuthContext";
 import logo from "../assets/immegration.png";
@@ -13,7 +13,7 @@ export default function FrontendLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -40,11 +40,11 @@ export default function FrontendLogin() {
         <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="lg:hidden text-white p-1 hover:bg-[#004a87] rounded"
+            disabled
+            className="lg:hidden text-white p-1 opacity-50 cursor-default"
             aria-label="Toggle Navigation Sidebar"
           >
-            {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            <Menu className="w-6 h-6" />
           </button>
           <img
             src={logo}
@@ -54,23 +54,22 @@ export default function FrontendLogin() {
         </div>
         <div className="text-white text-[12px] flex items-center gap-3">
           <span>Need an account?</span>
-          <Link
-            to="/create-account"
-            className="bg-white/10 hover:bg-white/20 text-white px-3 py-1 rounded-[2px] font-bold border border-white/30 transition-colors"
+          <span
+            className="bg-white/10 text-white px-3 py-1 rounded-[2px] font-bold border border-white/30 cursor-default opacity-80"
           >
             Create Account
-          </Link>
+          </span>
         </div>
       </header>
 
       {/* Official Breadcrumb Bar */}
-      <div className="bg-[#dbe6f1] h-[34px] px-4 sm:px-[72px] text-[13px] text-[#003399] flex items-center gap-1.5 border-b border-[#c2d3e4] overflow-x-auto whitespace-nowrap">
-        <Link to="/" className="flex items-center gap-1 hover:underline text-[#003399] shrink-0 font-normal">
+      <div className="bg-[#dbe6f1] h-[34px] px-4 sm:px-[72px] text-[13px] text-[#003399] flex items-center gap-1.5 border-b border-[#c2d3e4] overflow-x-auto whitespace-nowrap pointer-events-none">
+        <div className="flex items-center gap-1 text-[#003399] shrink-0 font-normal">
           <Home className="w-3.5 h-3.5 text-[#222222]" />
           <span>Home</span>
-        </Link>
+        </div>
         <span className="text-[#333333]">&gt;</span>
-        <span className="hover:underline cursor-pointer shrink-0 font-normal">VisaView</span>
+        <span className="shrink-0 font-normal">VisaView</span>
         <span className="text-[#333333]">&gt;</span>
         <span className="text-[#222222] font-bold shrink-0">Login</span>
       </div>
@@ -80,34 +79,26 @@ export default function FrontendLogin() {
         
         {/* Left Navigation Sidebar */}
         <aside
-          className={`fixed lg:static inset-y-0 left-0 z-30 w-[215px] bg-[#eef4f9] border-r border-[#cad8e6] pt-6 pr-4 pl-0 shrink-0 transition-transform duration-200 ease-in-out ${
+          className={`fixed lg:static inset-y-0 left-0 z-30 w-[215px] bg-[#eef4f9] border-r border-[#cad8e6] pt-6 pr-4 pl-0 shrink-0 transition-transform duration-200 ease-in-out pointer-events-none ${
             sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
           }`}
         >
           <h2 className="text-[17px] font-bold text-[#003399] mb-3 pl-4">VisaView</h2>
           <ul className="space-y-2 text-[13px] text-[#003399]">
-            <li className="flex items-start gap-1.5 cursor-pointer hover:underline pl-4 font-normal">
+            <li className="flex items-start gap-1.5 pl-4 font-normal">
               <span className="text-[9px] mt-[3px] text-[#003399]">►</span>
               <span>Register Organisation</span>
             </li>
-            <li className="flex items-start gap-1.5 font-bold cursor-pointer hover:underline pl-4">
+            <li className="flex items-start gap-1.5 font-bold pl-4">
               <span className="text-[9px] mt-[3px] text-[#003399]">►</span>
               <span>Verify Visa Record</span>
             </li>
-            <li className="flex items-start gap-1.5 cursor-pointer hover:underline pl-4 font-normal">
+            <li className="flex items-start gap-1.5 pl-4 font-normal">
               <span className="text-[9px] mt-[3px] text-[#003399]">►</span>
               <span>My Visa Verification Service Account</span>
             </li>
           </ul>
         </aside>
-
-        {/* Mobile Sidebar Backdrop */}
-        {sidebarOpen && (
-          <div
-            onClick={() => setSidebarOpen(false)}
-            className="fixed inset-0 bg-black/40 z-20 lg:hidden"
-          />
-        )}
 
         {/* Right Main Content Form Area */}
         <main className="flex-1 pt-6 px-4 sm:pl-9 sm:pr-12 max-w-[950px] pb-16 overflow-x-hidden">
@@ -140,9 +131,6 @@ export default function FrontendLogin() {
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{error}</span>
               </div>
-              <button onClick={() => setError("")} className="underline font-bold cursor-pointer">
-                Dismiss
-              </button>
             </div>
           )}
 
@@ -196,16 +184,16 @@ export default function FrontendLogin() {
                 Log In
               </button>
 
-              <div className="pt-2 text-[12px] text-[#003399] space-y-1">
+              <div className="pt-2 text-[12px] text-[#003399] space-y-1 pointer-events-none">
                 <div>
-                  <a href="#forgot-password" className="hover:underline">
+                  <span className="text-[#003399]">
                     Forgotten your password or account details?
-                  </a>
+                  </span>
                 </div>
                 <div>
-                  <Link to="/create-account" className="hover:underline font-bold">
+                  <span className="font-bold text-[#003399]">
                     Need a Visa Verification Service account? Register here.
-                  </Link>
+                  </span>
                 </div>
               </div>
             </div>
